@@ -345,7 +345,7 @@
                 <div class="benefits-list">
                     <div class="benefit-item">
                         <h4>🔨 Build Equity, Not Someone Else's</h4>
-                        <p>Every payment builds your wealth. In 5 years of renting at $3,400/month, you'll spend $204,000 with nothing to show for it.</p>
+                        <p id="equityText">Every payment builds your wealth. In 5 years of renting at $3,400/month, you'll spend $204,000 with nothing to show for it.</p>
                     </div>
                     <div class="benefit-item">
                         <h4>🔒 Lock in Your Payment</h4>
@@ -442,6 +442,9 @@
             const rentIncrease = currentRent * 0.03;
             const totalRentCost = currentRent + rentersInsurance + rentIncrease;
 
+            // Calculate 5-year rental cost (60 months)
+            const fiveYearRentCost = currentRent * 60;
+
             // Update display
             document.getElementById('monthlyRent').textContent = '$' + currentRent.toLocaleString();
             document.getElementById('rentIncrease').textContent = '$' + Math.round(rentIncrease);
@@ -450,6 +453,10 @@
             document.getElementById('mortgagePayment').textContent = '$' + Math.round(mortgagePayment).toLocaleString();
             document.getElementById('propertyTaxes').textContent = '$' + Math.round(propertyTaxes).toLocaleString();
             document.getElementById('totalBuyCost').textContent = '$' + Math.round(totalBuyCost).toLocaleString();
+
+            // Update the equity benefit text
+            document.getElementById('equityText').textContent = 
+                `Every payment builds your wealth. In 5 years of renting at $${currentRent.toLocaleString()}/month, you'll spend $${fiveYearRentCost.toLocaleString()} with nothing to show for it.`;
         }
 
         // Initialize with default values
