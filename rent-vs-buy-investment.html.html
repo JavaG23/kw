@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Northern Virginia: Home Ownership vs Rent + Investment Analysis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            color: #374151;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-group label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .input-group input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .metric-card {
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-card.blue {
+            background-color: #eff6ff;
+        }
+        
+        .metric-card.green {
+            background-color: #f0fdf4;
+        }
+        
+        .metric-card.purple {
+            background-color: #faf5ff;
+        }
+        
+        .metric-card.orange {
+            background-color: #fff7ed;
+        }
+        
+        .metric-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .metric-subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .blue .metric-title, .blue .metric-value {
+            color: #1e40af;
+        }
+        
+        .green .metric-title, .green .metric-value {
+            color: #166534;
+        }
+        
+        .purple .metric-title, .purple .metric-value {
+            color: #7c3aed;
+        }
+        
+        .orange .metric-title, .orange .metric-value {
+            color: #ea580c;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 24px 0;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .comparison-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .comparison-item.blue {
+            background-color: #eff6ff;
+        }
+        
+        .comparison-item.red {
+            background-color: #fef2f2;
+        }
+        
+        .comparison-item.gray {
+            background-color: #f3f4f6;
+            border: 2px solid #d1d5db;
+        }
+        
+        .comparison-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        
+        .comparison-value.blue {
+            color: #2563eb;
+        }
+        
+        .comparison-value.red {
+            color: #dc2626;
+        }
+        
+        .assumptions {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .assumptions h3 {
+            font-weight: bold;
+            margin: 16px 0 8px 0;
+        }
+        
+        .assumptions h3:first-child {
+            margin-top: 0;
+        }
+        
+        .assumptions ul {
+            margin-left: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .assumptions li {
+            margin-bottom: 4px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1 class="title">Northern Virginia: Home Ownership vs Rent + Stock Investment</h1>
+            <p class="subtitle">Compare building equity through home ownership versus renting and investing in the S&P 500</p>
+            
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="homePrice">Home Price ($)</label>
+                    <input type="number" id="homePrice" value="750000" step="10000">
+                </div>
+                
+                <div class="input-group">
+                    <label for="downPayment">Down Payment (%)</label>
+                    <input type="number" id="downPayment" value="20" step="5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="mortgageRate">Mortgage Rate (%)</label>
+                    <input type="number" id="mortgageRate" value="6.5" step="0.25">
+                </div>
+                
+                <div class="input-group">
+                    <label for="rent">Monthly Rent ($)</label>
+                    <input type="number" id="rent" value="3500" step="100">
+                </div>
+                
+                <div class="input-group">
+                    <label for="homeAppreciation">Home Appreciation (%)</label>
+                    <input type="number" id="homeAppreciation" value="5.5" step="0.5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="stockReturn">Stock Return (%)</label>
+                    <input type="number" id="stockReturn" value="10" step="0.5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="years">Years to Analyze</label>
+                    <input type="number" id="years" value="10" min="5" max="30">
+                </div>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card blue">
+                    <div class="metric-title">Down Payment</div>
+                    <div class="metric-value" id="downPaymentAmount">$150,000</div>
+                </div>
+                
+                <div class="metric-card green">
+                    <div class="metric-title">Monthly P&I Payment</div>
+                    <div class="metric-value" id="monthlyPayment">$4,738</div>
+                </div>
+                
+                <div class="metric-card purple">
+                    <div class="metric-title">Total Monthly Housing</div>
+                    <div class="metric-value" id="totalHousingCost">$5,676</div>
+                    <div class="metric-subtitle">Includes taxes, insurance, maintenance</div>
+                </div>
+                
+                <div class="metric-card orange">
+                    <div class="metric-title">Monthly Rent</div>
+                    <div class="metric-value" id="rentDisplay">$3,500</div>
+                    <div class="metric-subtitle" id="costDifference">Difference: $2,176 more for housing</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 class="section-title">Wealth Building Comparison Over Time</h2>
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="comparison-grid">
+            <div class="card">
+                <h2 class="section-title">Final Comparison (<span id="finalYears">10</span> Years)</h2>
+                <div class="comparison-item blue">
+                    <span>Home Equity:</span>
+                    <span class="comparison-value blue" id="finalHomeEquity">$0</span>
+                </div>
+                <div class="comparison-item red">
+                    <span>Stock Investment:</span>
+                    <span class="comparison-value red" id="finalStockValue">$0</span>
+                </div>
+                <div class="comparison-item gray">
+                    <span style="font-weight: bold;">Difference:</span>
+                    <span class="comparison-value" id="finalDifference">$0</span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="section-title">Key Assumptions & Notes</h2>
+                <div class="assumptions">
+                    <h3>Home Ownership:</h3>
+                    <ul>
+                        <li>30-year fixed mortgage</li>
+                        <li>Property taxes, insurance, maintenance: 1.5% annually</li>
+                        <li>No transaction costs included</li>
+                        <li>Home appreciation based on Northern Virginia trends</li>
+                    </ul>
+                    
+                    <h3>Rent + Invest:</h3>
+                    <ul>
+                        <li>Down payment invested immediately in S&P 500</li>
+                        <li>Monthly difference (if rent < housing costs) invested</li>
+                        <li>No taxes on investment gains considered</li>
+                        <li>Rent assumed to stay constant (unrealistic)</li>
+                    </ul>
+                    
+                    <h3>Market Data:</h3>
+                    <ul>
+                        <li>Northern Virginia home appreciation: ~5.5% average</li>
+                        <li>S&P 500 historical average: ~10.5%</li>
+                        <li>Current median home price: ~$730k</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+        
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+        
+        function calculateData() {
+            const homePrice = parseFloat(document.getElementById('homePrice').value);
+            const downPaymentPct = parseFloat(document.getElementById('downPayment').value) / 100;
+            const mortgageRate = parseFloat(document.getElementById('mortgageRate').value) / 100;
+            const rent = parseFloat(document.getElementById('rent').value);
+            const homeAppreciation = parseFloat(document.getElementById('homeAppreciation').value) / 100;
+            const stockReturn = parseFloat(document.getElementById('stockReturn').value) / 100;
+            const years = parseInt(document.getElementById('years').value);
+            
+            const downPaymentAmount = homePrice * downPaymentPct;
+            const loanAmount = homePrice - downPaymentAmount;
+            const monthlyRate = mortgageRate / 12;
+            const numPayments = 30 * 12;
+            
+            // Calculate monthly mortgage payment
+            const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                                  (Math.pow(1 + monthlyRate, numPayments) - 1);
+            
+            // Add property taxes, insurance, maintenance
+            const monthlyTotalHousing = monthlyPayment + (homePrice * 0.015 / 12);
+            const monthlyDifference = monthlyTotalHousing - rent;
+            
+            const data = [];
+            const labels = [];
+            const homeEquityData = [];
+            const stockInvestmentData = [];
+            
+            for (let year = 0; year <= years; year++) {
+                // Home ownership scenario
+                const currentHomeValue = homePrice * Math.pow(1 + homeAppreciation, year);
+                
+                // Calculate remaining mortgage balance
+                let remainingBalance = loanAmount;
+                for (let month = 1; month <= year * 12; month++) {
+                    const interestPayment = remainingBalance * monthlyRate;
+                    const principalPayment = monthlyPayment - interestPayment;
+                    remainingBalance -= principalPayment;
+                }
+                remainingBalance = Math.max(0, remainingBalance);
+                
+                const homeEquity = currentHomeValue - remainingBalance;
+                
+                // Rent + invest scenario
+                let investmentValue = downPaymentAmount; // Start with down payment invested
+                
+                // Add monthly difference invested (if rent is lower than housing costs)
+                if (monthlyDifference < 0) {
+                    const monthlyInvestment = Math.abs(monthlyDifference);
+                    const monthsInvested = year * 12;
+                    
+                    if (monthsInvested > 0) {
+                        const monthlyStockReturn = stockReturn / 12;
+                        const futureValueAnnuity = monthlyInvestment * 
+                            ((Math.pow(1 + monthlyStockReturn, monthsInvested) - 1) / monthlyStockReturn);
+                        investmentValue = downPaymentAmount * Math.pow(1 + stockReturn, year) + futureValueAnnuity;
+                    }
+                } else {
+                    investmentValue = downPaymentAmount * Math.pow(1 + stockReturn, year);
+                }
+                
+                labels.push(year);
+                homeEquityData.push(Math.round(homeEquity));
+                stockInvestmentData.push(Math.round(investmentValue));
+            }
+            
+            return {
+                labels,
+                homeEquityData,
+                stockInvestmentData,
+                monthlyPayment,
+                monthlyTotalHousing,
+                monthlyDifference,
+                downPaymentAmount
+            };
+        }
+        
+        function updateMetrics() {
+            const data = calculateData();
+            const rent = parseFloat(document.getElementById('rent').value);
+            const years = parseInt(document.getElementById('years').value);
+            
+            // Update metric displays
+            document.getElementById('downPaymentAmount').textContent = formatCurrency(data.downPaymentAmount);
+            document.getElementById('monthlyPayment').textContent = formatCurrency(data.monthlyPayment);
+            document.getElementById('totalHousingCost').textContent = formatCurrency(data.monthlyTotalHousing);
+            document.getElementById('rentDisplay').textContent = formatCurrency(rent);
+            
+            const diffText = data.monthlyDifference > 0 ? 
+                `Difference: ${formatCurrency(Math.abs(data.monthlyDifference))} more for housing` :
+                `Difference: ${formatCurrency(Math.abs(data.monthlyDifference))} more for rent`;
+            document.getElementById('costDifference').textContent = diffText;
+            
+            // Update final comparison
+            document.getElementById('finalYears').textContent = years;
+            const finalHomeEquity = data.homeEquityData[years];
+            const finalStockValue = data.stockInvestmentData[years];
+            
+            document.getElementById('finalHomeEquity').textContent = formatCurrency(finalHomeEquity);
+            document.getElementById('finalStockValue').textContent = formatCurrency(finalStockValue);
+            
+            const difference = Math.abs(finalHomeEquity - finalStockValue);
+            const winner = finalHomeEquity > finalStockValue ? ' (Home Wins)' : ' (Stocks Win)';
+            const diffElement = document.getElementById('finalDifference');
+            diffElement.textContent = formatCurrency(difference) + winner;
+            diffElement.className = `comparison-value ${finalHomeEquity > finalStockValue ? 'blue' : 'red'}`;
+        }
+        
+        function updateChart() {
+            const data = calculateData();
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Home Equity (Net Worth)',
+                        data: data.homeEquityData,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.1
+                    }, {
+                        label: 'Stock Investment Value',
+                        data: data.stockInvestmentData,
+                        borderColor: '#dc2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Years'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Net Worth ($)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000) + 'k';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatCurrency(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateAll() {
+            updateMetrics();
+            updateChart();
+        }
+        
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['homePrice', 'downPayment', 'mortgageRate', 'rent', 'homeAppreciation', 'stockReturn', 'years'];
+            inputs.forEach(id => {
+                document.getElementById(id).addEventListener('input', updateAll);
+            });
+            
+            // Initial calculation
+            updateAll();
+        });
+    </script>
+</body>
+</html>
